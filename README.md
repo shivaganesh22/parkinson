@@ -22,6 +22,8 @@ py -3.10 -m venv env
 # 2. Activate virtual environment
 env\Scripts\activate.bat
 
+# 3. Clone Git Repository
+git clone https://github.com/shivaganesh22/parkinson
 
 # 4. Install requirements
 cd parkinson
