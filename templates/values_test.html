@@ -1,0 +1,359 @@
+{% extends 'header.html' %}
+{% load static %}
+
+{% block main %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <!-- Section 1: Header -->
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold mb-2 text-gray-900 dark:text-white">
+            <i class="fas fa-flask mr-3 text-purple-600"></i>Parkinson Detection - Biomedical Features
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">Enter biomedical voice measurements for accurate Parkinson's disease detection</p>
+    </div>
+
+    <!-- Section 2: Input Form -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-10">
+        <form id="valuesForm" class="space-y-8">
+            {% csrf_token %}
+
+            <!-- Frequency Features -->
+            <div>
+                <h2 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-4 border-b-2 border-purple-300 pb-2">
+                    <i class="fas fa-wave-square mr-2"></i>Frequency Features (Hz)
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:Fo(Hz)</label>
+                        <input type="number" step="any" name="MDVP:Fo(Hz)" placeholder="80–260" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:Fhi(Hz)</label>
+                        <input type="number" step="any" name="MDVP:Fhi(Hz)" placeholder="100–600" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:Flo(Hz)</label>
+                        <input type="number" step="any" name="MDVP:Flo(Hz)" placeholder="60–240" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jitter -->
+            <div>
+                <h2 class="text-lg font-bold text-blue-600 dark:text-blue-400 mb-4 border-b-2 border-blue-300 pb-2">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Jitter (Frequency Instability)
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:Jitter(%)</label>
+                        <input type="number" step="any" name="MDVP:Jitter(%)" placeholder="0.001–0.03" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:Jitter(Abs)</label>
+                        <input type="number" step="any" name="MDVP:Jitter(Abs)" placeholder="0.00001–0.0003" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:RAP</label>
+                        <input type="number" step="any" name="MDVP:RAP" placeholder="0.0005–0.02" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:PPQ</label>
+                        <input type="number" step="any" name="MDVP:PPQ" placeholder="0.0005–0.02" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Jitter:DDP</label>
+                        <input type="number" step="any" name="Jitter:DDP" placeholder="0.001–0.06" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shimmer -->
+            <div>
+                <h2 class="text-lg font-bold text-green-600 dark:text-green-400 mb-4 border-b-2 border-green-300 pb-2">
+                    <i class="fas fa-volume-mute mr-2"></i>Shimmer (Amplitude Instability)
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:Shimmer</label>
+                        <input type="number" step="any" name="MDVP:Shimmer" placeholder="0.01–0.12" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:Shimmer(dB)</label>
+                        <input type="number" step="any" name="MDVP:Shimmer(dB)" placeholder="0.1–1.5" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Shimmer:APQ3</label>
+                        <input type="number" step="any" name="Shimmer:APQ3" placeholder="0.005–0.07" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Shimmer:APQ5</label>
+                        <input type="number" step="any" name="Shimmer:APQ5" placeholder="0.01–0.1" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">MDVP:APQ</label>
+                        <input type="number" step="any" name="MDVP:APQ" placeholder="0.01–0.1" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Shimmer:DDA</label>
+                        <input type="number" step="any" name="Shimmer:DDA" placeholder="0.01–0.2" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Noise Measures -->
+            <div>
+                <h2 class="text-lg font-bold text-red-600 dark:text-red-400 mb-4 border-b-2 border-red-300 pb-2">
+                    <i class="fas fa-waveform-lines mr-2"></i>Noise Measures
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">NHR</label>
+                        <input type="number" step="any" name="NHR" placeholder="0.0005–0.3" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">HNR</label>
+                        <input type="number" step="any" name="HNR" placeholder="5–35" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nonlinear Measures -->
+            <div>
+                <h2 class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mb-4 border-b-2 border-indigo-300 pb-2">
+                    <i class="fas fa-diagram-project mr-2"></i>Nonlinear Measures
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">RPDE</label>
+                        <input type="number" step="any" name="RPDE" placeholder="0.25–0.7" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">DFA</label>
+                        <input type="number" step="any" name="DFA" placeholder="0.5–0.85" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">spread1</label>
+                        <input type="number" step="any" name="spread1" placeholder="-7 to -2" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">spread2</label>
+                        <input type="number" step="any" name="spread2" placeholder="0–0.5" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">D2</label>
+                        <input type="number" step="any" name="D2" placeholder="1.5–3.5" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">PPE</label>
+                        <input type="number" step="any" name="PPE" placeholder="0.05–0.6" required
+                            class="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex gap-4 pt-6 border-t-2 border-gray-300 dark:border-gray-600">
+                <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-flask-vial mr-2"></i>Analyze Features
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Section 3: Results & Hospitals (Side by side) -->
+    <div id="resultsSection" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
+        <!-- Results Column (Left) -->
+        <div class="md:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-stethoscope mr-2 text-blue-600"></i>Detection Results
+            </h2>
+            <div id="resultContent" class="space-y-4"></div>
+            
+            <div class="mt-6 grid grid-cols-2 gap-3">
+                <a href="{% url 'history' %}" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition text-center text-sm shadow">
+                    <i class="fas fa-history mr-1"></i>History
+                </a>
+                <button onclick="location.reload()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition text-sm shadow">
+                    <i class="fas fa-redo mr-1"></i>New Test
+                </button>
+            </div>
+        </div>
+
+        <!-- Hospitals Column (Right) -->
+        <div class="md:col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-green-600 max-h-screen sticky top-4">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-hospital-user mr-2 text-green-600"></i>Recommended
+            </h3>
+            
+            <div id="hospitalsList" class="space-y-3 max-h-96 overflow-y-auto pr-2 scrollbar-thin">
+                <!-- Hospitals will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-2xl text-center">
+            <div class="mb-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto"></div>
+            </div>
+            <p class="text-gray-900 dark:text-white font-semibold">Analyzing features...</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Please wait</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    /* Custom scrollbar styling */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 3px;
+    }
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #4b5563;
+    }
+</style>
+
+<script>
+document.getElementById('valuesForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    showLoading();
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('{% url "values_predict" %}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        hideLoading();
+        
+        if (data.success) {
+            displayResults(data);
+        } else {
+            alert('Error: ' + (data.debug_error || data.error));
+        }
+    } catch (error) {
+        hideLoading();
+        alert('Error: ' + error.message);
+    }
+});
+
+function displayResults(data) {
+    const resultHTML = `
+        <div class="mb-4">
+            ${data.result === 'parkinson' ?
+                `<div class="bg-red-100 dark:bg-red-900 rounded-lg p-4 border-2 border-red-600">
+                    <i class="fas fa-exclamation-triangle text-3xl text-red-600 mb-2 block"></i>
+                    <h3 class="text-xl font-bold text-red-800 dark:text-red-200">Parkinson Detected</h3>
+                    <p class="text-red-700 dark:text-red-300 mt-1 text-sm">Confidence: <span class="font-bold">${data.confidence}%</span></p>
+                </div>` :
+                `<div class="bg-green-100 dark:bg-green-900 rounded-lg p-4 border-2 border-green-600">
+                    <i class="fas fa-check-circle text-3xl text-green-600 mb-2 block"></i>
+                    <h3 class="text-xl font-bold text-green-800 dark:text-green-200">Healthy Result</h3>
+                    <p class="text-green-700 dark:text-green-300 mt-1 text-sm">Confidence: <span class="font-bold">${data.confidence}%</span></p>
+                </div>`
+            }
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="bg-gray-50 dark:bg-gray-700 rounded p-3">
+                <p class="text-gray-600 dark:text-gray-400 font-semibold mb-1">Result</p>
+                <p class="text-gray-900 dark:text-white">${data.result.charAt(0).toUpperCase() + data.result.slice(1)}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded p-3">
+                <p class="text-gray-600 dark:text-gray-400 font-semibold mb-1">Confidence</p>
+                <p class="text-gray-900 dark:text-white">${data.confidence}%</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('resultContent').innerHTML = resultHTML;
+    document.getElementById('resultsSection').classList.remove('hidden');
+    
+    // Show hospitals only if Parkinson detected
+    if (data.result === 'parkinson' && data.hospitals && data.hospitals.length > 0) {
+        displayHospitals(data.hospitals);
+    } else if (data.result !== 'parkinson') {
+        document.getElementById('hospitalsList').innerHTML = '<div class="text-gray-600 dark:text-gray-400 text-center py-4">No recommendations needed for healthy results</div>';
+    }
+    
+    // Scroll to results
+    setTimeout(() => {
+        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+function displayHospitals(hospitals) {
+    let hospitalsHTML = '';
+    hospitals.forEach((hospital, index) => {
+        const stars = '★'.repeat(Math.floor(hospital.rating)) + '☆'.repeat(5 - Math.floor(hospital.rating));
+        hospitalsHTML += `
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border-l-3 border-green-500 hover:bg-green-50 dark:hover:bg-gray-600 transition cursor-pointer">
+                <p class="font-semibold text-gray-900 dark:text-white text-xs">${index + 1}. ${hospital.name}</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${hospital.specialization}</p>
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-yellow-500 text-xs">${stars}</span>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">${hospital.rating}/5</span>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">📞 ${hospital.phone}</p>
+            </div>
+        `;
+    });
+    
+    document.getElementById('hospitalsList').innerHTML = hospitalsHTML;
+}
+
+function showLoading() {
+    document.getElementById('loadingIndicator').classList.remove('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingIndicator').classList.add('hidden');
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'header.html' %}
+{% load static %}
+
+{% block main %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" class="py-20">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="text-white">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">Detect Parkinson's Disease <span class="text-yellow-300">Early</span></h1>
+                <p class="text-xl mb-8 text-gray-100">Advanced AI-powered audio analysis to detect Parkinson's disease symptoms with high accuracy. Get tested in minutes from home.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'test' %}" class="bg-yellow-400 text-purple-900 font-bold py-3 px-8 rounded-lg hover:bg-yellow-300 transition text-center"><i class="fas fa-microphone mr-2"></i>Start Test Now</a>
+                    <a href="{% url 'history' %}" class="bg-white text-purple-700 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition text-center"><i class="fas fa-history mr-2"></i>View My History</a>
+                    {% else %}
+                    <a href="{% url 'account_signup' %}" class="bg-yellow-400 text-purple-900 font-bold py-3 px-8 rounded-lg hover:bg-yellow-300 transition text-center"><i class="fas fa-user-plus mr-2"></i>Get Started</a>
+                    <a href="{% url 'account_login' %}" class="bg-white text-purple-700 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition text-center"><i class="fas fa-sign-in-alt mr-2"></i>Login</a>
+                    {% endif %}
+                </div>
+                <div class="grid grid-cols-3 gap-6 mt-12 border-t border-white border-opacity-20 pt-12">
+                    <div>
+                        <div class="text-3xl font-bold">{{ total_tests }}</div>
+                        <div class="text-sm text-gray-200">Tests Completed</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold">{{ total_users }}</div>
+                        <div class="text-sm text-gray-200">Active Users</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold">98%</div>
+                        <div class="text-sm text-gray-200">Accuracy Rate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-center">
+                <div class="relative w-full h-96 bg-white bg-opacity-10 rounded-lg flex items-center justify-center backdrop-blur">
+                    <div class="text-center">
+                        <i class="fas fa-brain text-white text-8xl mb-4 opacity-20"></i>
+                        <p class="text-white text-lg">Parkinson Detection System</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-20 bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-white">About Parkinson's Disease</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 p-8 rounded-lg border border-purple-200 dark:border-purple-700">
+                <div class="text-4xl mb-4"><i class="fas fa-info-circle text-purple-600"></i></div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">What is Parkinson's?</h3>
+                <p class="text-gray-700 dark:text-gray-300">Parkinson's disease is a progressive nervous system disorder that affects movement. It develops gradually, sometimes starting with a tremor in just one hand.</p>
+            </div>
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 p-8 rounded-lg border border-blue-200 dark:border-blue-700">
+                <div class="text-4xl mb-4"><i class="fas fa-stethoscope text-blue-600"></i></div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Early Symptoms</h3>
+                <p class="text-gray-700 dark:text-gray-300">Early signs include tremor, slow movement, rigid muscles, and voice changes. Our AI analyzes vocal patterns to detect subtle abnormalities in speech.</p>
+            </div>
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 p-8 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                <div class="text-4xl mb-4"><i class="fas fa-check-circle text-indigo-600"></i></div>
+                <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Early Detection</h3>
+                <p class="text-gray-700 dark:text-gray-300">Early diagnosis allows for better treatment planning. Regular monitoring helps track disease progression and enables timely medical interventions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-20 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-white">How Our Detection System Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-purple-600 text-white rounded-full text-2xl font-bold">1</div>
+                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Record Audio</h3>
+                <p class="text-gray-600 dark:text-gray-400">Record a 30-second voice sample or upload an audio file</p>
+            </div>
+            <div class="text-center">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-purple-600 text-white rounded-full text-2xl font-bold">2</div>
+                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Feature Extraction</h3>
+                <p class="text-gray-600 dark:text-gray-400">Our AI extracts advanced acoustic features from your voice</p>
+            </div>
+            <div class="text-center">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-purple-600 text-white rounded-full text-2xl font-bold">3</div>
+                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">AI Analysis</h3>
+                <p class="text-gray-600 dark:text-gray-400">Machine learning model analyzes patterns indicative of Parkinson's</p>
+            </div>
+            <div class="text-center">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-purple-600 text-white rounded-full text-2xl font-bold">4</div>
+                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Get Results</h3>
+                <p class="text-gray-600 dark:text-gray-400">Receive detailed report with hospital recommendations</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="py-20 bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-white">Why Choose Our System</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="flex gap-4"><div class="flex-shrink-0"><div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white"><i class="fas fa-lock"></i></div></div><div><h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Secure & Private</h3><p class="text-gray-600 dark:text-gray-400">Your medical data is encrypted and securely stored.</p></div></div>
+            <div class="flex gap-4"><div class="flex-shrink-0"><div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white"><i class="fas fa-tachometer-alt"></i></div></div><div><h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Fast Results</h3><p class="text-gray-600 dark:text-gray-400">Get instant analysis results within seconds.</p></div></div>
+            <div class="flex gap-4"><div class="flex-shrink-0"><div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white"><i class="fas fa-robot"></i></div></div><div><h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">AI-Powered</h3><p class="text-gray-600 dark:text-gray-400">Advanced machine learning models with high accuracy.</p></div></div>
+            <div class="flex gap-4"><div class="flex-shrink-0"><div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white"><i class="fas fa-hospital"></i></div></div><div><h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Hospital Directory</h3><p class="text-gray-600 dark:text-gray-400">Access recommendations for top specialized hospitals.</p></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" class="py-20">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-4xl font-bold text-white mb-6">Take the First Step Today</h2>
+        <p class="text-xl text-gray-100 mb-8">Early detection can make a significant difference. Get your Parkinson's screening done today.</p>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'test' %}" class="inline-block bg-yellow-400 text-purple-900 font-bold py-4 px-10 rounded-lg hover:bg-yellow-300 transition text-lg"><i class="fas fa-microphone mr-2"></i>Start Your Test Now</a>
+        {% else %}
+        <a href="{% url 'account_signup' %}" class="inline-block bg-yellow-400 text-purple-900 font-bold py-4 px-10 rounded-lg hover:bg-yellow-300 transition text-lg"><i class="fas fa-user-plus mr-2"></i>Create Account & Test</a>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

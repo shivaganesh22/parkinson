@@ -1,0 +1,239 @@
+{% extends 'header.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block main %}
+<div class="max-w-5xl mx-auto px-4 py-12">
+    <div class="mb-6">
+        <a href="{% url 'history' %}" class="text-purple-600 hover:text-purple-800 font-semibold"><i class="fas fa-arrow-left mr-2"></i>Back to History</a>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Detection Report</h1>
+            <span class="text-sm text-gray-500">{{ detection.test_date|date:"d M Y, H:i" }}</span>
+        </div>
+
+        <!-- Result Banner -->
+        <div class="{% if detection.detection_result == 'parkinson' %}bg-red-50 dark:bg-red-900{% else %}bg-green-50 dark:bg-green-900{% endif %} border-l-4 {% if detection.detection_result == 'parkinson' %}border-red-600{% else %}border-green-600{% endif %} p-6 rounded">
+            <div class="flex items-center">
+                <div class="text-5xl {% if detection.detection_result == 'parkinson' %}text-red-600{% else %}text-green-600{% endif %} mr-6">
+                    {% if detection.detection_result == 'parkinson' %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {% else %}
+                    <i class="fas fa-check-circle"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold {% if detection.detection_result == 'parkinson' %}text-red-800 dark:text-red-200{% else %}text-green-800 dark:text-green-200{% endif %}">
+                        {% if detection.detection_result == 'parkinson' %}
+                        Parkinson Detected
+                        {% else %}
+                        Healthy
+                        {% endif %}
+                    </h2>
+                    <p class="text-lg font-semibold {% if detection.detection_result == 'parkinson' %}text-red-700 dark:text-red-300{% else %}text-green-700 dark:text-green-300{% endif %}">
+                        Confidence: {{ detection.confidence }}%
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <!-- Test Information -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Test Information</h3>
+            <ul class="space-y-4">
+                <li>
+                    <span class="text-gray-600 dark:text-gray-400">Test Type:</span>
+                    <span class="font-bold text-gray-900 dark:text-white">
+                        {% if detection.test_type == 'upload' %}
+                        <i class="fas fa-upload mr-2 text-blue-600"></i>Uploaded File
+                        {% elif detection.test_type == 'record' %}
+                        <i class="fas fa-microphone mr-2 text-green-600"></i>Browser Recording
+                        {% elif detection.test_type == 'values' %}
+                        <i class="fas fa-flask mr-2 text-purple-600"></i>Biomedical Features
+                        {% else %}
+                        <i class="fas fa-microphone mr-2 text-green-600"></i>Browser Recording
+                        {% endif %}
+                    </span>
+                </li>
+                <li>
+                    <span class="text-gray-600 dark:text-gray-400">Date & Time:</span>
+                    <span class="font-bold text-gray-900 dark:text-white">{{ detection.test_date|date:"d M Y, H:i" }}</span>
+                </li>
+                {% if detection.test_type != 'values' %}
+                <li>
+                    <span class="text-gray-600 dark:text-gray-400">Audio File:</span>
+                    <span class="font-bold text-gray-900 dark:text-white">
+                        <a href="{{ detection.audio_file.url }}" target="_blank" class="text-purple-600 hover:text-purple-800">
+                            <i class="fas fa-download mr-1"></i>Download
+                        </a>
+                    </span>
+                </li>
+                {% else %}
+                <li>
+                    <span class="text-gray-600 dark:text-gray-400">Test Data:</span>
+                    <span class="font-bold text-gray-900 dark:text-white">
+                        <button onclick="toggleFeaturesCard()" class="text-purple-600 hover:text-purple-800 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-800 px-3 py-1 rounded transition">
+                            <i class="fas fa-eye mr-1"></i>View Features
+                        </button>
+                    </span>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- Confidence Analysis -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h3 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Confidence Analysis</h3>
+            <div class="relative pt-4">
+                <div class="flex mb-2">
+                    <span class="text-sm font-bold text-gray-900 dark:text-white">{{ detection.confidence }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+                    <div class="bg-purple-600 h-4 rounded-full transition-all" style="width: {{ detection.confidence }}%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                    {% if detection.confidence > 75 %}
+                    High confidence in detection result.
+                    {% elif detection.confidence > 50 %}
+                    Moderate confidence in detection result.
+                    {% else %}
+                    Low confidence - consider re-testing for better accuracy.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommended Hospitals - Only for Parkinson -->
+    {% if detection.detection_result == 'parkinson' and hospitals %}
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 mb-8" id="hospitalsSection">
+        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+            <i class="fas fa-hospital mr-3 text-purple-600"></i>Recommended Hospitals
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="hospitalsGrid">
+            {% for hospital in hospitals %}
+            <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-6 hover:shadow-lg transition">
+                <div class="flex items-start justify-between mb-3">
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-white">
+                        <i class="fas fa-star text-yellow-400 mr-1"></i>{{ hospital.hospital.name|truncatewords:3 }}
+                    </h4>
+                    <span class="bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">#{{ hospital.rank }}</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    <i class="fas fa-stethoscope mr-2 text-blue-600"></i>{{ hospital.hospital.specialization }}
+                </p>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-yellow-500">
+                        <i class="fas fa-star"></i>
+                        {{ hospital.hospital.rating }}/5.0
+                    </span>
+                    <a href="tel:{{ hospital.hospital.phone }}" class="text-purple-600 hover:text-purple-800 font-semibold">
+                        <i class="fas fa-phone mr-1"></i>Call
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Email Report -->
+    {% if email_report %}
+    <div class="bg-blue-50 dark:bg-blue-900 border border-blue-300 dark:border-blue-700 rounded-lg p-6 mb-8">
+        <h4 class="font-bold text-blue-900 dark:text-blue-100 mb-2">
+            <i class="fas fa-envelope mr-2"></i>Email Report
+        </h4>
+        <p class="text-blue-800 dark:text-blue-200 text-sm">
+            Report was sent to {{ email_report.recipient_email }} on {{ email_report.sent_at|date:"d M Y, H:i" }}
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="flex gap-4">
+        <a href="{% url 'download_report' detection.id %}" class="flex-1 bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 transition text-center">
+            <i class="fas fa-file-pdf mr-2"></i>Download PDF Report
+        </a>
+        <a href="{% url 'history' %}" class="flex-1 bg-gray-400 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-500 transition text-center">
+            <i class="fas fa-arrow-left mr-2"></i>Back to History
+        </a>
+    </div>
+
+    <!-- Features Modal -->
+    {% if detection.test_type == 'values' and detection.features_data %}
+    <div id="featuresModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-96 overflow-y-auto">
+            <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700 p-6 flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <i class="fas fa-flask mr-2 text-purple-600"></i>Biomedical Features
+                </h2>
+                <button onclick="toggleFeaturesCard()" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                {% if detection.features_data.features %}
+                    {% if detection.features_data.feature_names %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for feature_name in detection.features_data.feature_names %}
+                        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <p class="text-sm text-gray-600 dark:text-gray-400 font-semibold">{{ feature_name }}</p>
+                            <p class="text-lg font-bold text-gray-900 dark:text-white mt-1">{{ detection.features_data.features|get_by_index:forloop.counter0|format_feature_value }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <p class="font-mono text-sm">{{ detection.features_data|safe }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if detection.features_data.raw_probability %}
+                    <div class="bg-blue-50 dark:bg-blue-900 border border-blue-300 dark:border-blue-700 rounded-lg p-4">
+                        <p class="text-sm text-blue-600 dark:text-blue-300 font-semibold">Raw Probability</p>
+                        <p class="text-xl font-bold text-blue-900 dark:text-blue-100">{{ detection.features_data.raw_probability|floatformat:4 }}</p>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="text-gray-600 dark:text-gray-400 text-center py-8">
+                    <p>No feature data available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function toggleFeaturesCard() {
+        const modal = document.getElementById('featuresModal');
+        if (modal) {
+            modal.classList.toggle('hidden');
+        }
+    }
+    
+    // Close modal when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('featuresModal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    toggleFeaturesCard();
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

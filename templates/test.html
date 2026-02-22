@@ -1,0 +1,388 @@
+{% extends 'header.html' %}
+{% load static %}
+
+{% block main %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Section 1: Header -->
+    <div class="mb-10">
+        <h1 class="text-4xl font-bold mb-2 text-gray-900 dark:text-white">
+            <i class="fas fa-microphone mr-3 text-purple-600"></i>Parkinson Detection Test
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">Record or upload audio to analyze for Parkinson's indicators</p>
+    </div>
+
+    <!-- Section 2: Upload & Record (Side by Side) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <!-- Upload Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-purple-600">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-upload mr-2 text-purple-600"></i>Upload Audio
+            </h2>
+            
+            <form id="uploadForm" class="space-y-4">
+                {% csrf_token %}
+                <div class="border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-lg p-6 text-center hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950 transition cursor-pointer"
+                    onclick="document.getElementById('audioFile').click()">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-purple-400 mb-2 block"></i>
+                    <p class="text-gray-700 dark:text-gray-300 font-medium text-sm">Click to select audio file</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop (Max 10MB)</p>
+                    <input type="file" id="audioFile" name="audio_file" accept="audio/*" class="hidden" required>
+                </div>
+                <div id="selectedFile" class="hidden text-xs text-green-600 dark:text-green-400 font-medium">
+                    <i class="fas fa-check-circle mr-1"></i><span id="fileName"></span>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-2 px-4 rounded-lg transition-all transform hover:scale-105 shadow">
+                    <i class="fas fa-check mr-2"></i>Analyze
+                </button>
+            </form>
+        </div>
+
+        <!-- Recording Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-microphone mr-2 text-blue-600"></i>Record Audio
+            </h2>
+            
+            <div class="space-y-4">
+                <!-- Timer Display -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white font-mono" id="recordingTimer">00:00</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1 flex items-center justify-center gap-2">
+                        <span id="recordingStatus">Ready to record</span>
+                        <span id="recordingIndicator" class="hidden">
+                            <i class="fas fa-circle text-red-600 animate-pulse text-xs"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex gap-2">
+                    <button id="recordBtn" type="button" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-lg transition text-sm shadow">
+                        <i class="fas fa-circle mr-1"></i>Start
+                    </button>
+                    <button id="stopBtn" type="button" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg transition text-sm shadow hidden">
+                        <i class="fas fa-stop mr-1"></i>Stop
+                    </button>
+                </div>
+
+                <!-- Audio Player (Hidden until recording stops) -->
+                <!-- <div id="audioPlayerContainer" class="hidden bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                    <div class="flex items-center gap-2">
+                        <button id="playRecordingBtn" type="button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition text-sm shadow flex-shrink-0">
+                            <i class="fas fa-play mr-1"></i>Play
+                        </button>
+                        <audio id="recordingAudio" class="flex-1 h-8" controls>
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                </div> -->
+
+                <button id="submitRecordBtn" type="button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition shadow hidden text-sm">
+                    <i class="fas fa-check mr-2"></i>Analyze
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Detection Results & Hospitals (Side by Side) -->
+    <div id="resultsSection" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
+        <!-- Results Column (Left) -->
+        <div class="md:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-stethoscope mr-2 text-blue-600"></i>Detection Results
+            </h2>
+            <div id="resultContent" class="space-y-4"></div>
+            
+            <div class="mt-6 grid grid-cols-2 gap-3">
+                <a href="{% url 'history' %}" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition text-center text-sm shadow">
+                    <i class="fas fa-history mr-1"></i>History
+                </a>
+                <button onclick="location.reload()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition text-sm shadow">
+                    <i class="fas fa-redo mr-1"></i>New Test
+                </button>
+            </div>
+        </div>
+
+        <!-- Hospitals Column (Right) -->
+        <div class="md:col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-l-4 border-green-600 max-h-screen sticky top-4">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <i class="fas fa-hospital-user mr-2 text-green-600"></i>Recommended
+            </h3>
+            
+            <div id="hospitalsList" class="space-y-3 max-h-96 overflow-y-auto pr-2 scrollbar-thin">
+                <!-- Hospitals will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator (Hidden) -->
+    <div id="loadingIndicator" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-2xl text-center">
+            <div class="mb-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto"></div>
+            </div>
+            <p class="text-gray-900 dark:text-white font-semibold">Analyzing audio...</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Please wait</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    /* Custom scrollbar styling */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 3px;
+    }
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #4b5563;
+    }
+</style>
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+let recordingInterval;
+
+// File input change handler
+document.getElementById('audioFile').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        document.getElementById('selectedFile').classList.remove('hidden');
+        document.getElementById('fileName').textContent = file.name;
+    }
+});
+
+// Upload Form Handler
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('audioFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select an audio file');
+        return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        return;
+    }
+    
+    showLoading();
+    
+    const formData = new FormData();
+    formData.append('audio_file', file);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    try {
+        const response = await fetch('{% url "upload_audio" %}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        hideLoading();
+        
+        if (data.success) {
+            displayResults(data);
+        } else {
+            alert('Error: ' + (data.debug_error || data.error));
+        }
+    } catch (error) {
+        hideLoading();
+        alert('Error: ' + error.message);
+    }
+});
+
+// Recording Handlers
+document.getElementById('recordBtn').addEventListener('click', async function() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        let seconds = 0;
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.start();
+        
+        recordingInterval = setInterval(() => {
+            seconds++;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.getElementById('recordingTimer').textContent = 
+                String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            
+            if (seconds >= 30) {
+                document.getElementById('stopBtn').click();
+            }
+        }, 1000);
+
+        document.getElementById('recordBtn').classList.add('hidden');
+        document.getElementById('stopBtn').classList.remove('hidden');
+        document.getElementById('recordingStatus').textContent = 'Recording...';
+        document.getElementById('recordingIndicator').classList.remove('hidden');
+    } catch (error) {
+        alert('Error accessing microphone: ' + error.message);
+    }
+});
+
+document.getElementById('stopBtn').addEventListener('click', function() {
+    mediaRecorder.stop();
+    clearInterval(recordingInterval);
+    
+    document.getElementById('stopBtn').classList.add('hidden');
+    document.getElementById('recordBtn').classList.remove('hidden');
+    document.getElementById('submitRecordBtn').classList.remove('hidden');
+    document.getElementById('audioPlayerContainer').classList.remove('hidden');
+    document.getElementById('recordingStatus').textContent = 'Ready to submit';
+    document.getElementById('recordingIndicator').classList.add('hidden');
+    
+    // Set up audio playback
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+    const audioUrl = URL.createObjectURL(audioBlob);
+    document.getElementById('recordingAudio').src = audioUrl;
+});
+
+document.getElementById('submitRecordBtn').addEventListener('click', async function() {
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+    const formData = new FormData();
+    formData.append('audio_blob', audioBlob);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    showLoading();
+    
+    try {
+        const response = await fetch('{% url "record_audio" %}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        hideLoading();
+        
+        if (data.success) {
+            displayResults(data);
+        } else {
+            alert('Error: ' + (data.debug_error || data.error));
+        }
+    } catch (error) {
+        hideLoading();
+        alert('Error: ' + error.message);
+    }
+});
+
+// Play recording button
+document.getElementById('playRecordingBtn').addEventListener('click', function() {
+    const audio = document.getElementById('recordingAudio');
+    if (audio.paused) {
+        audio.play();
+        this.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+    } else {
+        audio.pause();
+        this.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+    }
+});
+
+// Reset play button when audio ends
+document.getElementById('recordingAudio').addEventListener('ended', function() {
+    document.getElementById('playRecordingBtn').innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+});
+
+function displayResults(data) {
+    const resultHTML = `
+        <div class="mb-4">
+            ${data.result === 'parkinson' ?
+                `<div class="bg-red-100 dark:bg-red-900 rounded-lg p-4 border-2 border-red-600">
+                    <i class="fas fa-exclamation-triangle text-3xl text-red-600 mb-2 block"></i>
+                    <h3 class="text-xl font-bold text-red-800 dark:text-red-200">Parkinson Detected</h3>
+                    <p class="text-red-700 dark:text-red-300 mt-1 text-sm">Confidence: <span class="font-bold">${data.confidence}%</span></p>
+                </div>` :
+                `<div class="bg-green-100 dark:bg-green-900 rounded-lg p-4 border-2 border-green-600">
+                    <i class="fas fa-check-circle text-3xl text-green-600 mb-2 block"></i>
+                    <h3 class="text-xl font-bold text-green-800 dark:text-green-200">Healthy Result</h3>
+                    <p class="text-green-700 dark:text-green-300 mt-1 text-sm">Confidence: <span class="font-bold">${data.confidence}%</span></p>
+                </div>`
+            }
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="bg-gray-50 dark:bg-gray-700 rounded p-3">
+                <p class="text-gray-600 dark:text-gray-400 font-semibold mb-1">Result</p>
+                <p class="text-gray-900 dark:text-white">${data.result.charAt(0).toUpperCase() + data.result.slice(1)}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded p-3">
+                <p class="text-gray-600 dark:text-gray-400 font-semibold mb-1">Confidence</p>
+                <p class="text-gray-900 dark:text-white">${data.confidence}%</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('resultContent').innerHTML = resultHTML;
+    document.getElementById('resultsSection').classList.remove('hidden');
+    
+    // Show hospitals only if Parkinson detected
+    if (data.result === 'parkinson' && data.hospitals && data.hospitals.length > 0) {
+        displayHospitals(data.hospitals);
+    } else if (data.result !== 'parkinson') {
+        document.getElementById('hospitalsList').innerHTML = '<div class="text-gray-600 dark:text-gray-400 text-center py-4">No recommendations needed for healthy results</div>';
+    }
+    
+    // Scroll to results
+    setTimeout(() => {
+        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+function displayHospitals(hospitals) {
+    let hospitalsHTML = '';
+    hospitals.forEach((hospital, index) => {
+        const stars = '★'.repeat(Math.floor(hospital.rating)) + '☆'.repeat(5 - Math.floor(hospital.rating));
+        hospitalsHTML += `
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border-l-3 border-green-500 hover:bg-green-50 dark:hover:bg-gray-600 transition cursor-pointer">
+                <p class="font-semibold text-gray-900 dark:text-white text-xs">${index + 1}. ${hospital.name}</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${hospital.specialization}</p>
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-yellow-500 text-xs">${stars}</span>
+                    <span class="text-xs text-gray-600 dark:text-gray-400">${hospital.rating}/5</span>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">📞 ${hospital.phone}</p>
+            </div>
+        `;
+    });
+    
+    document.getElementById('hospitalsList').innerHTML = hospitalsHTML;
+}
+
+function showLoading() {
+    document.getElementById('loadingIndicator').classList.remove('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingIndicator').classList.add('hidden');
+}
+</script>
+
+{% endblock %}

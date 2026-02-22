@@ -1,0 +1,310 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Parkinson Detection System{% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .gradient-secondary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+    }
+  </style>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    screens: {
+                        "other": { 'min': '340px', 'max': '1200px' },
+                    },
+                    colors: {
+                        darkbg: "#1E293B",
+                        primary: { "50": "#f5f3ff", "100": "#ede9fe", "200": "#ddd6fe", "300": "#c4b5fd", "400": "#a78bfa", "500": "#8b5cf6", "600": "#7c3aed", "700": "#6d28d9", "800": "#5b21b6", "900": "#4c1d95", "950": "#2e1065" },
+                        parkinson: { "50": "#f8f9fa", "100": "#e9ecef", "500": "#667eea", "600": "#5568d3", "700": "#4956b8" }
+                    },
+                    maxHeight: {
+                        '128': '18.4rem',
+                    },
+                    width: {
+                        '128': '35rem',
+                    },
+                    maxWidth: {
+                        '128': '35rem',
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        main {
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .navbar-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .hover-glow {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-glow:hover {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900">
+
+
+  <nav class="navbar-bg sticky top-0 z-50 border-b border-purple-400 dark:border-purple-700">
+        <div class="max-w-7xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <!-- Logo -->
+            <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <div class="flex items-center justify-center w-10 h-10 bg-white rounded-full">
+                    <i class="fas fa-brain text-purple-600 text-lg"></i>
+                </div>
+                <span class="self-center text-2xl font-bold text-white whitespace-nowrap">
+                    Parkinson Detect
+                </span>
+            </a>
+            
+            <!-- Right side items -->
+            <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+                <!-- Dark mode toggle -->
+                <button onclick="toggleDarkMode()"
+                    class="text-white hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 rounded-lg text-sm p-2.5 transition-colors duration-300">
+                    <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    </svg>
+                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                
+                <!-- User Menu -->
+                {% if request.user.is_authenticated %}
+                <button type="button"
+                    class="flex text-sm bg-white rounded-full md:me-0 focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-600 transition-all duration-300 hover:scale-110"
+                    id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
+                    data-dropdown-placement="bottom-end">
+                    <span class="sr-only">Open user menu</span>
+                    {% if request.user.profile.photo %}
+                    <img class="w-8 h-8 rounded-full object-cover" src="{{ request.user.profile.photo.url }}" alt="user photo">
+                    {% else %}
+                    <img class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=667eea&color=fff" alt="user avatar">
+                    {% endif %}
+                </button>
+                
+                <style>
+                    [data-dropdown-toggle="user-dropdown"][aria-expanded="true"] ~ #user-dropdown {
+                        animation: slideInRight 0.3s ease-out;
+                    }
+                    @keyframes slideInRight {
+                        from {
+                            opacity: 0;
+                            transform: translateX(10px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                    }
+                </style>
+                
+                <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-xl dark:bg-gray-700 dark:divide-gray-600 min-w-max origin-top-right"
+                    id="user-dropdown">
+                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-600">
+                        <span class="block text-sm font-semibold text-gray-900 dark:text-white">
+                            {{ request.user.first_name|default:request.user.username | title }}
+                        </span>
+                        <span class="block text-sm text-gray-500 truncate dark:text-gray-400">{{ request.user.email }}</span>
+                    </div>
+                    <ul class="py-2" aria-labelledby="user-menu-button">
+                        <li>
+                            <a href="{% url 'profile' %}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white transition-colors duration-200">
+                                <i class="fas fa-user mr-2 text-purple-600"></i>Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'history' %}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white transition-colors duration-200">
+                                <i class="fas fa-history mr-2 text-blue-600"></i>History
+                            </a>
+                        </li>
+                        <li class="border-t border-gray-100 dark:border-gray-600">
+                            <a href="{% url 'account_logout' %}"
+                                class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-gray-600 dark:text-red-400 dark:hover:text-white transition-colors duration-200">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <button data-collapse-toggle="navbar-user" type="button"
+                    class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors duration-300"
+                    aria-controls="navbar-user" aria-expanded="false">
+                    <span class="sr-only">Open main menu</span>
+                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" />
+                    </svg>
+                </button>
+                {% else %}
+                <div class="flex space-x-3">
+                    <a href='{% url "account_login" %}'
+                        class="text-white hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-300 border border-white border-opacity-20">
+                        Login
+                    </a>
+                    <a href='{% url "account_signup" %}'
+                        class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-300">
+                        Sign Up
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Menu -->
+            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
+                <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-purple-300 rounded-lg bg-purple-700 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-transparent dark:bg-purple-800 md:dark:bg-transparent dark:border-purple-700 transition-colors duration-300">
+                    <li>
+                        <a href="{% url 'home' %}"
+                            class="block py-2 px-3 text-white hover:bg-purple-600 md:hover:bg-transparent md:hover:text-yellow-300 md:p-0 rounded transition-colors duration-300">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'test' %}"
+                            class="block py-2 px-3 text-white hover:bg-purple-600 md:hover:bg-transparent md:hover:text-yellow-300 md:p-0 rounded transition-colors duration-300" onclick="return checkLogin(event)">
+                            <i class="fas fa-microphone mr-2"></i>Test
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'values_test' %}"
+                            class="block py-2 px-3 text-white hover:bg-purple-600 md:hover:bg-transparent md:hover:text-yellow-300 md:p-0 rounded transition-colors duration-300" onclick="return checkLogin(event)">
+                            <i class="fas fa-flask mr-2"></i>Test Values
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'history' %}"
+                            class="block py-2 px-3 text-white hover:bg-purple-600 md:hover:bg-transparent md:hover:text-yellow-300 md:p-0 rounded transition-colors duration-300" onclick="return checkLogin(event)">
+                            <i class="fas fa-history mr-2"></i>History
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages (Right Side Only) -->
+    {% if messages %}
+    <div class="fixed top-24 right-4 z-40 space-y-3 max-w-sm">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg shadow-xl border-l-4 animate-pulse {% if message.tags %}{% if 'success' in message.tags %}bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-500{% elif 'error' in message.tags %}bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-500{% elif 'warning' in message.tags %}bg-yellow-50 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 border-yellow-500{% else %}bg-blue-50 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-500{% endif %}{% else %}bg-blue-50 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-500{% endif %}" role="alert">
+            <div class="flex items-center">
+                {% if message.tags == 'success' or 'success' in message.tags %}
+                <i class="fas fa-check-circle mr-3 text-green-600 dark:text-green-400"></i>
+                {% elif message.tags == 'error' or 'error' in message.tags %}
+                <i class="fas fa-times-circle mr-3 text-red-600 dark:text-red-400"></i>
+                {% elif message.tags == 'warning' or 'warning' in message.tags %}
+                <i class="fas fa-exclamation-triangle mr-3 text-yellow-600 dark:text-yellow-400"></i>
+                {% else %}
+                <i class="fas fa-info-circle mr-3 text-blue-600 dark:text-blue-400"></i>
+                {% endif %}
+                <span class="text-sm font-medium flex-1">{{ message }}</span>
+                <button onclick="this.closest('[role=alert]').remove()" class="ml-3 text-lg font-bold hover:opacity-70 transition-opacity">&times;</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+
+    <script>
+        // Dark mode script
+        function toggleDarkMode() {
+            const htmlElement = document.documentElement;
+            const isDarkMode = htmlElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // Check for saved dark mode preference
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedDarkMode = localStorage.getItem('darkMode');
+
+            if (savedDarkMode === 'true') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Check login for Test and History links
+        function checkLogin(event) {
+            {% if not request.user.is_authenticated %}
+            event.preventDefault();
+            window.location.href = "{% url 'account_login' %}";
+            return false;
+            {% endif %}
+            return true;
+        }
+    </script>
+    <script>
+        // Update icon visibility based on current mode
+        function updateThemeIcons() {
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+            if (document.documentElement.classList.contains('dark')) {
+                darkIcon.classList.add('hidden');
+                lightIcon.classList.remove('hidden');
+            } else {
+                darkIcon.classList.remove('hidden');
+                lightIcon.classList.add('hidden');
+            }
+        }
+
+        // Call on page load
+        updateThemeIcons();
+
+        // Modify the toggleDarkMode function to update icons
+        function toggleDarkMode() {
+            const htmlElement = document.documentElement;
+            const isDarkMode = htmlElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', isDarkMode);
+            updateThemeIcons();
+        }
+    </script>
+</body>
+
+
+
+
+    {% block main%}
+
+    {%endblock%}
+</main>
+
+</html>

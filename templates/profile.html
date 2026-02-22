@@ -1,0 +1,127 @@
+{% extends 'header.html' %}
+{% load static %}
+
+{% block main %}
+<div class="max-w-5xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold mb-8 text-gray-900 dark:text-white"><i class="fas fa-user-circle mr-3 text-purple-600"></i>My Profile</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Sidebar - Profile Picture -->
+        <div class="md:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+                {% if user_profile.photo %}
+                <img src="{{ user_profile.photo.url }}" alt="Profile" class="w-full h-64 object-cover rounded-lg mb-4">
+                {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=667eea&color=fff&size=256" alt="Profile" class="w-full h-64 object-cover rounded-lg mb-4">
+                {% endif %}
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ user.first_name|default:user.username }}</h2>
+                <p class="text-purple-600 font-semibold">{{ user.email }}</p>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">Joined: {{ user.date_joined|date:"M d, Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Main Content - Form -->
+        <div class="md:col-span-2">
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- User Information -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+                    <h3 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Personal Information</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">First Name</label>
+                            {{ user_form.first_name }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Last Name</label>
+                            {{ user_form.last_name }}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Email</label>
+                        {{ user_form.email }}
+                    </div>
+                </div>
+
+                <!-- Medical Information -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+                    <h3 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Profile Information</h3>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Profile Photo</label>
+                        {{ profile_form.photo }}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Phone Number</label>
+                            {{ profile_form.phone }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Age</label>
+                            {{ profile_form.age }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Gender</label>
+                            {{ profile_form.gender }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Address</label>
+                            {{ profile_form.address }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">City</label>
+                            {{ profile_form.city }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">State</label>
+                            {{ profile_form.state }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Country</label>
+                            {{ profile_form.country }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-900 dark:text-white mb-2">Medical History</label>
+                        {{ profile_form.medical_history }}
+                    </div>
+                </div>
+
+                <!-- Form Errors -->
+                {% if user_form.non_field_errors or profile_form.non_field_errors %}
+                <div class="bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-200 px-4 py-3 rounded">
+                    {% for error in user_form.non_field_errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                    {% for error in profile_form.non_field_errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 bg-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-700 transition">
+                        <i class="fas fa-save mr-2"></i>Save Changes
+                    </button>
+                    <a href="{% url 'home' %}" class="flex-1 bg-gray-400 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-500 transition text-center">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

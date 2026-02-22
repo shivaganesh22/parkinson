@@ -1,0 +1,87 @@
+{% extends 'header.html' %}
+{% load static %}
+
+{% block main %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold mb-2 text-gray-900 dark:text-white"><i class="fas fa-history mr-3 text-purple-600"></i>Detection History</h1>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="text-3xl font-bold">{{ stats.total }}</div>
+            <div class="text-purple-100 mt-1">Total Tests</div>
+        </div>
+        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="text-3xl font-bold">{{ stats.parkinson }}</div>
+            <div class="text-red-100 mt-1">Parkinson Detected</div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="text-3xl font-bold">{{ stats.healthy }}</div>
+            <div class="text-green-100 mt-1">Healthy Results</div>
+        </div>
+    </div>
+
+    <!-- Tests List -->
+    {% if detections %}
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-100 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Date & Time</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Test Type</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Result</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Confidence</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for detection in detections %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                            <i class="fas fa-calendar-alt mr-2 text-purple-600"></i>
+                            {{ detection.test_date|date:"d M Y, H:i" }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                            {% if detection.test_type == 'upload' %}
+                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold"><i class="fas fa-upload mr-1"></i>Uploaded</span>
+                            {% elif detection.test_type == 'record' %}
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold"><i class="fas fa-microphone mr-1"></i>Recorded</span>
+                            {% elif detection.test_type == 'values' %}
+                                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-semibold"><i class="fas fa-flask mr-1"></i>Biomedical</span>
+                            {% else %}
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold"><i class="fas fa-microphone mr-1"></i>Recorded</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-bold">
+                            {% if detection.detection_result == 'parkinson' %}
+                                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full"><i class="fas fa-exclamation-triangle mr-1"></i>Parkinson</span>
+                            {% else %}
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full"><i class="fas fa-check-circle mr-1"></i>Healthy</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white font-semibold">{{ detection.confidence }}%</td>
+                        <td class="px-6 py-4 text-sm">
+                            <a href="{% url 'detection_detail' detection.id %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition inline-block">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
+        <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No Tests Yet</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">You haven't taken any Parkinson detection tests yet.</p>
+        <a href="{% url 'test' %}" class="inline-block bg-purple-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 transition">
+            <i class="fas fa-microphone mr-2"></i>Take Your First Test
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
