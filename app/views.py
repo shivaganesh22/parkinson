@@ -518,7 +518,7 @@ def values_predict(request):
         probabilities = values_model.predict_proba(values_scaled)[0]
         probability = probabilities[1]  # Probability of Parkinson
         
-        threshold = 0.6
+        threshold = 0.75
         if probability > threshold:
             result = 'parkinson'
         else:

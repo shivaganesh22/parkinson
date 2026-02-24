@@ -179,7 +179,7 @@ def detect_parkinson(audio_file_path):
             probability = fallback_detection(features)
 
         # Threshold for Parkinson detection
-        threshold = 0.65
+        threshold = 0.75
         
         if probability > threshold:
             result = 'parkinson'
